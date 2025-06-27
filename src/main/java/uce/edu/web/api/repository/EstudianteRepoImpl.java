@@ -26,5 +26,26 @@ public class EstudianteRepoImpl implements IEstudianteRepo {
         TypedQuery<Estudiante> myQuery = this.entityManager.createQuery("SELECT e From Estudiante e", Estudiante.class);
         return myQuery.getResultList();
     }
+
+    @Override
+    public void actualizarporId(Estudiante estudiante) {
+        this.entityManager.merge(estudiante);
+    }
+
+    @Override
+    public void actualizarParcialPorId(Estudiante estudiante) {
+        this.entityManager.merge(estudiante);
+    }
+
+    @Override
+    public void borrarPorId(Integer id) {
+        this.entityManager.remove(this.seleccionarPorId(id));;
+    }
+
+    @Override
+    public void insertar(Estudiante estudiante) {
+        this.entityManager.persist(estudiante);
+        
+    }
     
 }
