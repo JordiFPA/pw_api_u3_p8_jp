@@ -39,7 +39,7 @@ public class EstudianteRepoImpl implements IEstudianteRepo {
 
     @Override
     public void borrarPorId(Integer id) {
-        this.entityManager.remove(this.seleccionarPorId(id));;
+        this.entityManager.remove(this.seleccionarPorId(id));
     }
 
     @Override

@@ -65,7 +65,7 @@ public class EstudianteController {
         this.estudianteService.borrarPorId(id);
     }
 
-    @POST
+    @POST 
     @Path("")
     public void guardar(@RequestBody Estudiante estudiante) {
         this.estudianteService.guardar(estudiante);
