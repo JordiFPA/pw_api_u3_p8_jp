@@ -21,8 +21,9 @@ public class EstudianteServiceImpl implements IEstudianteService {
     }
 
     @Override
-    public List<Estudiante> buscarTodos() {
-       return this.estudianteRepo.seleccionarTodos();
+    public List<Estudiante> buscarTodos(String genero) {
+        return this.estudianteRepo.seleccionarTodos(genero);
+
     }
 
     @Override
@@ -32,12 +33,12 @@ public class EstudianteServiceImpl implements IEstudianteService {
 
     @Override
     public void actualizarParcialPorId(Estudiante estudiante) {
-       this.estudianteRepo.actualizarParcialPorId(estudiante);
+        this.estudianteRepo.actualizarParcialPorId(estudiante);
     }
 
     @Override
     public void borrarPorId(Integer id) {
-       this.estudianteRepo.borrarPorId(id);
+        this.estudianteRepo.borrarPorId(id);
     }
 
     @Override
