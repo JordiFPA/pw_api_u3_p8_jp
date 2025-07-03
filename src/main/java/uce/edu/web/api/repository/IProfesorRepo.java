@@ -17,4 +17,6 @@ public interface IProfesorRepo {
 
     public void insertar(Profesor profesor);
 
+    public List<Profesor> seleccionarTodosFiltro(String genero);
+
 }

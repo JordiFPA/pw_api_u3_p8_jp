@@ -50,4 +50,12 @@ public class IProfesorRepoImpl implements IProfesorRepo {
         this.entityManager.persist(profesor);
     }
 
+    @Override
+    public List<Profesor> seleccionarTodosFiltro(String genero) {
+        TypedQuery myQuery = this.entityManager.createQuery("SELECT e FROM Profesor e WHERE e.genero =: genero",
+                Profesor.class);
+        myQuery.setParameter("genero", genero);
+        return myQuery.getResultList();
+    }
+
 }

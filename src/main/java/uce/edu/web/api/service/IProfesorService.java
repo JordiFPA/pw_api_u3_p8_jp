@@ -11,4 +11,5 @@ public interface IProfesorService {
     public void actualizarParcialPorId(Profesor profesor);
     public void borrarPorId(Integer id);
     public void guardar(Profesor profesor);
+    public List<Profesor> buscarTodosFiltro(String genero);
 }

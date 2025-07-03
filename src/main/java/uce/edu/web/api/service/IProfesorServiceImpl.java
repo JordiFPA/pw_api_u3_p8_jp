@@ -44,4 +44,9 @@ public class IProfesorServiceImpl implements IProfesorService {
     this.profesorRepo.insertar(profesor);
   }
 
+  @Override
+  public List<Profesor> buscarTodosFiltro(String genero) {
+    return this.profesorRepo.seleccionarTodosFiltro(genero);
+  }
+
 }

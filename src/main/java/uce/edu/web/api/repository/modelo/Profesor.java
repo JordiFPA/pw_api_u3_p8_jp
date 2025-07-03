@@ -22,6 +22,8 @@ public class Profesor {
     private int edad;
     @Column(name = "profe_especialidad")
     private String especialidad;
+    @Column(name = "profe_genero")
+    private String genero;
 
     public int getId() {
         return id;
@@ -61,6 +63,14 @@ public class Profesor {
 
     public void setEspecialidad(String especialidad) {
         this.especialidad = especialidad;
+    }
+
+    public String getGenero() {
+        return genero;
+    }
+
+    public void setGenero(String genero) {
+        this.genero = genero;
     }
 
 }
