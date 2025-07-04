@@ -7,7 +7,6 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -33,14 +32,13 @@ public class EstudianteController extends BaseControlador {
 
     @GET
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Consultar estudiante por ID", description = "Este endpoint permite consultar un estudiante por su ID.")
     public Response consultarPorId(@PathParam("id") Integer id, @Context UriInfo uriInfo) {
 
         EstudianteTo estu = this.estudianteService.buscarPorId(id, uriInfo);
 
-        return Response.status(Response.Status.OK)
+        return Response.status(227)
                 .entity(estu)
                 .build();
     }
@@ -117,7 +115,7 @@ public class EstudianteController extends BaseControlador {
 
     @GET
     @Path("/{id}/hijos")
-    public List<Hijo> obtenerHijosPorIdHijo(@PathParam("id") Integer id) {
+    public List<Hijo> obtenerHijosPorId(@PathParam("id") Integer id) {
         Hijo h1 = new Hijo();
         h1.setNombre("Fernandito");
         Hijo h2 = new Hijo();
