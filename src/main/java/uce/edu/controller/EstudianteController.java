@@ -45,7 +45,6 @@ public class EstudianteController extends BaseControlador {
 
     @GET
     @Path("")
-
     @Operation(summary = "Consultar estudiante", description = "Consulta todos los estudiantes registrados en el sistema")
     public Response consultarTodos(@QueryParam("genero") String genero,
             @QueryParam("provincia") String provincia) {
@@ -57,7 +56,6 @@ public class EstudianteController extends BaseControlador {
 
     @PUT
     @Path("/{id}")
-
     public Response actualizarPorId(@RequestBody Estudiante estudiante, @PathParam("id") Integer id) {
         estudiante.setId(id);
         this.estudianteService.actualizarporId(estudiante);

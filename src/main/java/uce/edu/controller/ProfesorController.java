@@ -1,5 +1,8 @@
 package uce.edu.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 import jakarta.inject.Inject;
@@ -13,10 +16,14 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
+import uce.edu.web.api.repository.modelo.Hijo;
 import uce.edu.web.api.repository.modelo.Profesor;
 import uce.edu.web.api.service.IProfesorService;
+import uce.edu.web.api.service.to.ProfesorTo;
 
 @Path("/profesores")
 
@@ -28,8 +35,9 @@ public class ProfesorController {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response consultarPorId(@PathParam("id") Integer id) {
-        return Response.status(Response.Status.OK).entity(this.profesorService.buscarPorId(id)).build();
+    public Response consultarPorId(@PathParam("id") Integer id, @Context UriInfo uriInfo) {
+        ProfesorTo pTo = this.profesorService.buscarPorId(id, uriInfo);
+        return Response.status(227).entity(pTo).build();
 
     }
 
@@ -57,46 +65,56 @@ public class ProfesorController {
                 .build();
     }
 
-    @PUT
-    @Path("/{id}")
-    public Response actualizarPorId(@RequestBody Profesor profesor, @PathParam("id") Integer id) {
-        Profesor existente = this.profesorService.buscarPorId(id);
-        if (existente != null) {
-            existente.setNombre(profesor.getNombre());
-            existente.setApellido(profesor.getApellido());
-            existente.setEdad(profesor.getEdad());
-            existente.setEspecialidad(profesor.getEspecialidad());
-            existente.setGenero(profesor.getGenero());
-        }
-        this.profesorService.actualizarporId(existente);
-        return Response.status(Response.Status.OK)
-                .entity("Correcto")
-                .build();
-    }
-
-    @PATCH
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{id}")
-    public Response actualizarParcialPorId(@RequestBody Profesor profesor, @PathParam("id") Integer id) {
-        profesor.setId(id);
-        Profesor p = this.profesorService.buscarPorId(id);
-        if (profesor.getApellido() != null) {
-            p.setApellido(profesor.getApellido());
-        } else if (profesor.getNombre() != null) {
-            p.setNombre(profesor.getNombre());
-        } else if (profesor.getEdad() != 0) {
-            p.setEdad(profesor.getEdad());
-        } else if (profesor.getEspecialidad() != null) {
-            p.setEspecialidad(profesor.getEspecialidad());
-        } else if (profesor.getGenero() != null) {
-            p.setGenero(profesor.getGenero());
-        }
-        this.profesorService.actualizarParcialPorId(p);
-        return Response.status(Response.Status.OK).entity("").build();
-    }
-
+    /*
+     * @PUT
+     * 
+     * @Path("/{id}")
+     * public Response actualizarPorId(@RequestBody Profesor
+     * profesor, @PathParam("id") Integer id) {
+     * Profesor existente = this.profesorService.buscarPorId(id);
+     * if (existente != null) {
+     * existente.setNombre(profesor.getNombre());
+     * existente.setApellido(profesor.getApellido());
+     * existente.setEdad(profesor.getEdad());
+     * existente.setEspecialidad(profesor.getEspecialidad());
+     * existente.setGenero(profesor.getGenero());
+     * }
+     * this.profesorService.actualizarporId(existente);
+     * return Response.status(Response.Status.OK)
+     * .entity("Correcto")
+     * .build();
+     * }
+     * 
+     * 
+     * @PATCH
+     * 
+     * @Produces(MediaType.APPLICATION_JSON)
+     * 
+     * @Consumes(MediaType.APPLICATION_JSON)
+     * 
+     * @Path("/{id}")
+     * public Response actualizarParcialPorId(@RequestBody Profesor
+     * profesor, @PathParam("id") Integer id) {
+     * profesor.setId(id);
+     * Profesor p = this.profesorService.buscarPorId(id);
+     * if (profesor.getApellido() != null) {
+     * p.setApellido(profesor.getApellido());
+     * } else if (profesor.getNombre() != null) {
+     * p.setNombre(profesor.getNombre());
+     * } else if (profesor.getEdad() != 0) {
+     * p.setEdad(profesor.getEdad());
+     * } else if (profesor.getEspecialidad() != null) {
+     * p.setEspecialidad(profesor.getEspecialidad());
+     * } else if (profesor.getGenero() != null) {
+     * p.setGenero(profesor.getGenero());
+     * }
+     * this.profesorService.actualizarParcialPorId(p);
+     * return Response.status(Response.Status.OK).entity("").build();
+     * }
+     * 
+     */
     @DELETE
+
     @Path("/{id}")
     public Response eliminar(@PathParam("id") Integer id) {
         this.profesorService.borrarPorId(id);
@@ -113,6 +131,19 @@ public class ProfesorController {
         return Response.status(Response.Status.CREATED)
                 .entity("Profesor creado correctamente")
                 .build();
+    }
+
+    @GET
+    @Path("/{id}/hijos")
+    public List<Hijo> obtenerHijosPorId(@PathParam("id") Integer id) {
+        Hijo h1 = new Hijo();
+        h1.setNombre("Byron");
+        Hijo h2 = new Hijo();
+        h2.setNombre("Michael");
+        List<Hijo> hijos = new ArrayList<>();
+        hijos.add(h1);
+        hijos.add(h2);
+        return hijos;
     }
 
 }
