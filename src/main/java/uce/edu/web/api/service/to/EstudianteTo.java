@@ -14,19 +14,9 @@ public class EstudianteTo {
     private String apellido;
     private LocalDateTime fechaNacimiento;
     private String genero;
-    public Map<String, String> _links = new HashMap<>();
+    private Map<String, String> _links = new HashMap<>();
 
-    public EstudianteTo(String apellido, LocalDateTime fechaNacimiento, String genero, Integer id, String nombre,
-            UriInfo uriInfo) {
-        this.apellido = apellido;
-        this.fechaNacimiento = fechaNacimiento;
-        this.genero = genero;
-        this.id = id;
-        this.nombre = nombre;
-
-        URI todosHijos = uriInfo.getBaseUriBuilder().path(EstudianteController.class)
-                .path(EstudianteController.class, "obtenerHijosPorId").build(id);
-        _links.put("hijos", todosHijos.toString());
+    public EstudianteTo() {
 
     }
 
@@ -78,5 +68,11 @@ public class EstudianteTo {
         this._links = _links;
     }
 
-    
+
+    public void buildURI(UriInfo uriInfo) {
+        URI todosHijos = uriInfo.getBaseUriBuilder().path(EstudianteController.class)
+                .path(EstudianteController.class, "obtenerHijosPorId").build(id);
+        _links.put("hijos", todosHijos.toString());
+    }
+
 }

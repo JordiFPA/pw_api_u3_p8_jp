@@ -1,6 +1,5 @@
 package uce.edu.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -23,6 +22,7 @@ import uce.edu.web.api.repository.modelo.Estudiante;
 import uce.edu.web.api.repository.modelo.Hijo;
 import uce.edu.web.api.service.IEstudianteService;
 import uce.edu.web.api.service.IHijoService;
+import uce.edu.web.api.service.mapper.EstudianteMapper;
 import uce.edu.web.api.service.to.EstudianteTo;
 
 @Path("/estudiantes")
@@ -39,8 +39,9 @@ public class EstudianteController extends BaseControlador {
     @Operation(summary = "Consultar estudiante por ID", description = "Este endpoint permite consultar un estudiante por su ID.")
     public Response consultarPorId(@PathParam("id") Integer id, @Context UriInfo uriInfo) {
 
-        EstudianteTo estu = this.estudianteService.buscarPorId(id, uriInfo);
+        EstudianteTo estu = EstudianteMapper.toTo(this.estudianteService.buscarPorId(id));
 
+        estu.buildURI(uriInfo);
         return Response.status(227)
                 .entity(estu)
                 .build();

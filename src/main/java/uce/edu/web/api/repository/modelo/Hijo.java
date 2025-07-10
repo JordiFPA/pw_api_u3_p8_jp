@@ -1,5 +1,7 @@
 package uce.edu.web.api.repository.modelo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +20,7 @@ public class Hijo {
     private String nombre;
     @Column(name = "hijo_apellido")
     private String apellido;
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "hijo_estudiante")
     private Estudiante estudiante;
