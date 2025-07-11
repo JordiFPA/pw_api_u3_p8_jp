@@ -8,6 +8,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -49,18 +50,31 @@ public class EstudianteController extends BaseControlador {
 
     @GET
     @Path("")
+    @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Consultar estudiante", description = "Consulta todos los estudiantes registrados en el sistema")
     public Response consultarTodos(@QueryParam("genero") String genero,
-            @QueryParam("provincia") String provincia) {
+            @QueryParam("provincia") String provincia,
+            @Context UriInfo uriInfo) {
         System.out.println(provincia);
+
+        List<Estudiante> lista = this.estudianteService.buscarTodos(genero);
+        List<EstudianteTo> listaTo = new java.util.ArrayList<>();
+
+        for (Estudiante e : lista) {
+            EstudianteTo estuTo = EstudianteMapper.toTo(e);
+            estuTo.buildURI(uriInfo);
+            listaTo.add(estuTo);
+        }
+
         return Response.status(Response.Status.OK)
-                .entity(this.estudianteService.buscarTodos(genero))
+                .entity(listaTo)
                 .build();
     }
 
     @PUT
     @Path("/{id}")
-    public Response actualizarPorId(@RequestBody Estudiante estudiante, @PathParam("id") Integer id) {
+    public Response actualizarPorId(@RequestBody EstudianteTo estudianteTo, @PathParam("id") Integer id) {
+        Estudiante estudiante = EstudianteMapper.toEntity(estudianteTo);
         estudiante.setId(id);
         this.estudianteService.actualizarporId(estudiante);
         return Response.status(Response.Status.OK)
@@ -68,34 +82,33 @@ public class EstudianteController extends BaseControlador {
                 .build();
     }
 
-    /*
-     * @PATCH
-     * 
-     * @Path("/{id}")
-     * public Response actualizarParcialPorId(@RequestBody Estudiante
-     * estudiante, @PathParam("id") Integer id) {
-     * Estudiante existente = this.estudianteService.buscarPorId(id);
-     * if (existente == null) {
-     * return Response.status(Response.Status.NOT_FOUND).build();
-     * }
-     * if (estudiante.getApellido() != null) {
-     * existente.setApellido(estudiante.getApellido());
-     * }
-     * if (estudiante.getNombre() != null) {
-     * existente.setNombre(estudiante.getNombre());
-     * }
-     * if (estudiante.getFechaNacimiento() != null) {
-     * existente.setFechaNacimiento(estudiante.getFechaNacimiento());
-     * }
-     * if (estudiante.getGenero() != null) {
-     * existente.setGenero(estudiante.getGenero());
-     * }
-     * this.estudianteService.actualizarParcialPorId(existente);
-     * return Response.status(Response.Status.OK)
-     * .entity("Correcto")
-     * .build();
-     * }
-     */
+    @PATCH
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response actualizarParcialPorId(@RequestBody EstudianteTo estudianteTo, @PathParam("id") Integer id) {
+        Estudiante existente = this.estudianteService.buscarPorId(id);
+        if (existente == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("No encontrado").build();
+        }
+        if (estudianteTo.getApellido() != null) {
+            existente.setApellido(estudianteTo.getApellido());
+        }
+        if (estudianteTo.getNombre() != null) {
+            existente.setNombre(estudianteTo.getNombre());
+        }
+        if (estudianteTo.getFechaNacimiento() != null) {
+            existente.setFechaNacimiento(estudianteTo.getFechaNacimiento());
+        }
+        if (estudianteTo.getGenero() != null) {
+            existente.setGenero(estudianteTo.getGenero());
+        }
+        this.estudianteService.actualizarParcialPorId(existente);
+
+        EstudianteTo actualizado = EstudianteMapper.toTo(existente);
+        return Response.status(Response.Status.OK)
+                .entity(actualizado)
+                .build();
+    }
 
     @DELETE
     @Path("/{id}")
@@ -108,7 +121,8 @@ public class EstudianteController extends BaseControlador {
 
     @POST
     @Path("")
-    public Response guardar(@RequestBody Estudiante estudiante) {
+    public Response guardar(@RequestBody EstudianteTo estudianteTo) {
+        Estudiante estudiante = EstudianteMapper.toEntity(estudianteTo);
         this.estudianteService.guardar(estudiante);
         return Response.status(Response.Status.CREATED)
                 .entity("Estudiante creado correctamente")
