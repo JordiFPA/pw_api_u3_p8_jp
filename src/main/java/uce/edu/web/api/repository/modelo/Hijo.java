@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 @Entity
 @Table(name = "hijo")
 public class Hijo {
@@ -24,6 +25,10 @@ public class Hijo {
     @ManyToOne
     @JoinColumn(name = "hijo_estudiante")
     private Estudiante estudiante;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "hijo_profesor")
+    private Profesor profesor;
 
     public String getNombre() {
         return nombre;
@@ -48,7 +53,5 @@ public class Hijo {
     public void setApellido(String apellido) {
         this.apellido = apellido;
     }
-
-
 
 }
