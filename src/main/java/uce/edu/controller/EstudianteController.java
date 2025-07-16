@@ -1,11 +1,13 @@
 package uce.edu.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PATCH;
@@ -19,7 +21,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-import uce.edu.web.api.repository.modelo.Estudiante;
 import uce.edu.web.api.repository.modelo.Hijo;
 import uce.edu.web.api.service.IEstudianteService;
 import uce.edu.web.api.service.IHijoService;
@@ -27,6 +28,8 @@ import uce.edu.web.api.service.mapper.EstudianteMapper;
 import uce.edu.web.api.service.to.EstudianteTo;
 
 @Path("/estudiantes")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class EstudianteController extends BaseControlador {
 
     @Inject
@@ -36,7 +39,6 @@ public class EstudianteController extends BaseControlador {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Consultar estudiante por ID", description = "Este endpoint permite consultar un estudiante por su ID.")
     public Response consultarPorId(@PathParam("id") Integer id, @Context UriInfo uriInfo) {
 
@@ -50,33 +52,23 @@ public class EstudianteController extends BaseControlador {
 
     @GET
     @Path("")
-    @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Consultar estudiante", description = "Consulta todos los estudiantes registrados en el sistema")
     public Response consultarTodos(@QueryParam("genero") String genero,
             @QueryParam("provincia") String provincia,
             @Context UriInfo uriInfo) {
         System.out.println(provincia);
-
-        List<Estudiante> lista = this.estudianteService.buscarTodos(genero);
-        List<EstudianteTo> listaTo = new java.util.ArrayList<>();
-
-        for (Estudiante e : lista) {
-            EstudianteTo estuTo = EstudianteMapper.toTo(e);
-            estuTo.buildURI(uriInfo);
-            listaTo.add(estuTo);
-        }
-
+        List<EstudianteTo> estudiantes = this.estudianteService.buscarTodos(genero).stream().map(EstudianteMapper::toTo)
+                .collect(Collectors.toList());
         return Response.status(Response.Status.OK)
-                .entity(listaTo)
+                .entity(estudiantes)
                 .build();
     }
 
     @PUT
     @Path("/{id}")
     public Response actualizarPorId(@RequestBody EstudianteTo estudianteTo, @PathParam("id") Integer id) {
-        Estudiante estudiante = EstudianteMapper.toEntity(estudianteTo);
-        estudiante.setId(id);
-        this.estudianteService.actualizarporId(estudiante);
+        estudianteTo.setId(id);
+        this.estudianteService.actualizarporId(EstudianteMapper.toEntity(estudianteTo));
         return Response.status(Response.Status.OK)
                 .entity("Correcto")
                 .build();
@@ -84,9 +76,9 @@ public class EstudianteController extends BaseControlador {
 
     @PATCH
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response actualizarParcialPorId(@RequestBody EstudianteTo estudianteTo, @PathParam("id") Integer id) {
-        Estudiante existente = this.estudianteService.buscarPorId(id);
+        estudianteTo.setId(id);
+        EstudianteTo existente = EstudianteMapper.toTo(this.estudianteService.buscarPorId(id));
         if (existente == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("No encontrado").build();
         }
@@ -102,11 +94,10 @@ public class EstudianteController extends BaseControlador {
         if (estudianteTo.getGenero() != null) {
             existente.setGenero(estudianteTo.getGenero());
         }
-        this.estudianteService.actualizarParcialPorId(existente);
+        this.estudianteService.actualizarParcialPorId(EstudianteMapper.toEntity(existente));
 
-        EstudianteTo actualizado = EstudianteMapper.toTo(existente);
         return Response.status(Response.Status.OK)
-                .entity(actualizado)
+                .entity(existente)
                 .build();
     }
 
@@ -122,8 +113,7 @@ public class EstudianteController extends BaseControlador {
     @POST
     @Path("")
     public Response guardar(@RequestBody EstudianteTo estudianteTo) {
-        Estudiante estudiante = EstudianteMapper.toEntity(estudianteTo);
-        this.estudianteService.guardar(estudiante);
+        this.estudianteService.guardar(EstudianteMapper.toEntity(estudianteTo));
         return Response.status(Response.Status.CREATED)
                 .entity("Estudiante creado correctamente")
                 .build();

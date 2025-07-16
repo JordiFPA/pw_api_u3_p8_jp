@@ -1,11 +1,12 @@
 package uce.edu.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
-import java.util.ArrayList;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PATCH;
@@ -14,14 +15,12 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import uce.edu.web.api.repository.modelo.Hijo;
-import uce.edu.web.api.repository.modelo.Profesor;
 import uce.edu.web.api.service.IHijoService;
 import uce.edu.web.api.service.IProfesorService;
 import uce.edu.web.api.service.mapper.ProfesorMapper;
@@ -38,14 +37,9 @@ public class ProfesorController {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response consultarPorId(@PathParam("id") Integer id, @Context UriInfo uriInfo) {
-        Profesor profesor = this.profesorService.buscarPorId(id);
-        if (profesor == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("No encontrado").build();
-        }
-        ProfesorTo profeTo = ProfesorMapper.toTo(profesor);
-        profeTo.buildURI(uriInfo);
-        return Response.status(227)
+    public Response consultarPorId( @PathParam("id") Integer id) {
+        ProfesorTo profeTo = ProfesorMapper.toTo(this.profesorService.buscarPorId(id));
+        return Response.status(Response.Status.OK)
                 .entity(profeTo)
                 .build();
     }
@@ -58,14 +52,9 @@ public class ProfesorController {
             @Context UriInfo uriInfo) {
         System.out.println(provincia);
 
-        List<Profesor> lista = this.profesorService.buscarTodosFiltro(genero);
-        List<ProfesorTo> listaTo = new ArrayList<>();
-
-        for (Profesor p : lista) {
-            ProfesorTo profeTo = ProfesorMapper.toTo(p);
-            profeTo.buildURI(uriInfo);
-            listaTo.add(profeTo);
-        }
+        List<ProfesorTo> listaTo = this.profesorService.buscarTodosFiltro(genero).stream()
+                .map(ProfesorMapper::toTo)
+                .collect(Collectors.toList());
 
         return Response.status(Response.Status.OK)
                 .entity(listaTo)
@@ -76,9 +65,8 @@ public class ProfesorController {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response actualizarPorId(@RequestBody ProfesorTo profesorTo, @PathParam("id") Integer id) {
-        Profesor profesor = ProfesorMapper.toEntity(profesorTo);
-        profesor.setId(id);
-        this.profesorService.actualizarporId(profesor);
+        profesorTo.setId(id);
+        this.profesorService.actualizarporId(ProfesorMapper.toEntity(profesorTo));
         return Response.status(Response.Status.OK)
                 .entity("Correcto")
                 .build();
@@ -89,7 +77,8 @@ public class ProfesorController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response actualizarParcialPorId(@RequestBody ProfesorTo profesorTo, @PathParam("id") Integer id) {
-        Profesor existente = this.profesorService.buscarPorId(id);
+        profesorTo.setId(id);
+        ProfesorTo existente = ProfesorMapper.toTo(this.profesorService.buscarPorId(id));
         if (existente == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("No encontrado").build();
         }
@@ -108,11 +97,10 @@ public class ProfesorController {
         if (profesorTo.getGenero() != null) {
             existente.setGenero(profesorTo.getGenero());
         }
-        this.profesorService.actualizarParcialPorId(existente);
+        this.profesorService.actualizarParcialPorId(ProfesorMapper.toEntity(existente));
 
-        ProfesorTo actualizado = ProfesorMapper.toTo(existente);
         return Response.status(Response.Status.OK)
-                .entity(actualizado)
+                .entity(existente)
                 .build();
     }
 
@@ -129,12 +117,10 @@ public class ProfesorController {
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response guardar(@RequestBody ProfesorTo profesorTo, @Context UriInfo uriInfo) {
-        Profesor profesor = ProfesorMapper.toEntity(profesorTo);
-        this.profesorService.guardar(profesor);
-        ProfesorTo creado = ProfesorMapper.toTo(profesor);
-        creado.buildURI(uriInfo);
+
+        this.profesorService.guardar(ProfesorMapper.toEntity(profesorTo));
         return Response.status(Response.Status.CREATED)
-                .entity(creado)
+                .entity("Estudiante creado correctamente")
                 .build();
     }
 
