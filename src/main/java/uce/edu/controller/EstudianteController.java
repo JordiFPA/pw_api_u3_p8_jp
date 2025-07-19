@@ -3,9 +3,13 @@ package uce.edu.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.microprofile.jwt.Claim;
+import org.eclipse.microprofile.jwt.ClaimValue;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -37,11 +41,18 @@ public class EstudianteController extends BaseControlador {
     @Inject
     private IHijoService hijoService;
 
+    @Inject
+    JsonWebToken jwt;
+
+    @Inject
+    @Claim("sub")
+    ClaimValue<String> subject;
+
     @GET
     @Path("/{id}")
+    @RolesAllowed("admin")
     @Operation(summary = "Consultar estudiante por ID", description = "Este endpoint permite consultar un estudiante por su ID.")
     public Response consultarPorId(@PathParam("id") Integer id, @Context UriInfo uriInfo) {
-
         EstudianteTo estu = EstudianteMapper.toTo(this.estudianteService.buscarPorId(id));
 
         estu.buildURI(uriInfo);
